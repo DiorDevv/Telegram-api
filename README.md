@@ -30,4 +30,4 @@ Bu loyiha **Django Rest Framework (DRF)** va **Django Channels** asosida yaratil
 
 1️⃣ **Kutubxonalarni o‘rnatish**
 ```bash
-pip install -r requirements.txt
+pip install -r rek.txt
