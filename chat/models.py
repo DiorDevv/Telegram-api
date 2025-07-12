@@ -1,4 +1,3 @@
-# models.py
 from django.db import models
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, PermissionsMixin
 from django.utils import timezone
@@ -30,7 +29,7 @@ class User(AbstractBaseUser, PermissionsMixin):
     address = models.CharField(max_length=255)
     postal_code = models.CharField(max_length=20)
     phone = models.CharField(max_length=20)
-    is_active = models.BooleanField(default=True)
+    is_active = models.BooleanField(default=False)
     is_staff = models.BooleanField(default=False)
 
     USERNAME_FIELD = 'email'
@@ -41,7 +40,7 @@ class User(AbstractBaseUser, PermissionsMixin):
     def __str__(self):
         return self.email
 
-class ResetCode(models.Model):
+class EmailCode(models.Model):
     email = models.EmailField()
     code = models.CharField(max_length=6)
     created_at = models.DateTimeField(auto_now_add=True)
