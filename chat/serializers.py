@@ -14,7 +14,7 @@ class SignupSerializer(serializers.ModelSerializer):
         ]
 
     def create(self, validated_data):
-        password = ''.join(random.choices(string.ascii_letters + string.digits, k=8))
+        password = str(random.randint(100000, 999999))
         user = User.objects.create_user(password=password, **validated_data)
 
         send_mail(
