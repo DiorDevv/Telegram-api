@@ -1,7 +1,15 @@
+
+# urls.py
 from django.urls import path
-from .views import RequestCodeView, VerifyCodeView
+from .views import (
+    SignupView, LoginView,
+    ResetPasswordRequestView, VerifyResetCodeView, ResetPasswordView
+)
 
 urlpatterns = [
-    path('send-email/', RequestCodeView.as_view()),
-    path('verify-code/', VerifyCodeView.as_view()),
+    path('signup/', SignupView.as_view()),
+    path('login/', LoginView.as_view()),
+    path('reset-password-request/', ResetPasswordRequestView.as_view()),
+    path('verify-reset-code/', VerifyResetCodeView.as_view()),
+    path('reset-password/', ResetPasswordView.as_view()),
 ]
