@@ -1,12 +1,14 @@
 from rest_framework import serializers
-from .models import User, EmailCode
+from .models import User, EmailCode, Maqola
 from django.core.mail import send_mail
 import random
+
 
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         exclude = ('password', 'groups', 'user_permissions')
+
 
 class SignupSerializer(serializers.ModelSerializer):
     class Meta:
@@ -31,6 +33,14 @@ class SignupSerializer(serializers.ModelSerializer):
         )
         return user
 
+
 class VerifyLoginSerializer(serializers.Serializer):
     email = serializers.EmailField()
     code = serializers.CharField(max_length=6)
+
+
+
+class MaqolaSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Maqola
+        fields = '__all__'

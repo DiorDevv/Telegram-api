@@ -1,10 +1,13 @@
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
+from rest_framework.viewsets import ModelViewSet
 from rest_framework_simplejwt.tokens import RefreshToken
-from .serializers import SignupSerializer, VerifyLoginSerializer, UserSerializer
-from .models import EmailCode, User
+from .serializers import SignupSerializer, VerifyLoginSerializer, UserSerializer, MaqolaSerializer
+from .models import EmailCode, User, Maqola
 from drf_yasg.utils import swagger_auto_schema
+from rest_framework.parsers import MultiPartParser, FormParser
+
 
 class SignupView(APIView):
     @swagger_auto_schema(request_body=SignupSerializer)
@@ -14,6 +17,7 @@ class SignupView(APIView):
             serializer.save()
             return Response({"message": "Kod emailga yuborildi"}, status=201)
         return Response(serializer.errors, status=400)
+
 
 class VerifyLoginView(APIView):
     @swagger_auto_schema(request_body=VerifyLoginSerializer)
@@ -50,4 +54,11 @@ class UserListView(APIView):
         users = User.objects.all()
         serializer = UserSerializer(users, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+class MaqolaViewSet(ModelViewSet):
+    queryset = Maqola.objects.all()
+    serializer_class = MaqolaSerializer
+    parser_classes = [MultiPartParser, FormParser]
+
 
