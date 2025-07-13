@@ -3,6 +3,10 @@ from .models import User, EmailCode
 from django.core.mail import send_mail
 import random
 
+class UserSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        exclude = ('password', 'groups', 'user_permissions')
 
 class SignupSerializer(serializers.ModelSerializer):
     class Meta:
@@ -19,32 +23,14 @@ class SignupSerializer(serializers.ModelSerializer):
         EmailCode.objects.create(email=user.email, code=code)
 
         send_mail(
-            subject="Tasdiqlash kodingiz",
-            message=f"Sizning kirish kodingiz: {code}",
+            "Tasdiqlash kodingiz",
+            f"Sizning tasdiqlash kodingiz: {code}",
             from_email=None,
             recipient_list=[user.email],
-            fail_silently=False,
+            fail_silently=False
         )
         return user
 
-
-class LoginSerializer(serializers.Serializer):
+class VerifyLoginSerializer(serializers.Serializer):
     email = serializers.EmailField()
     code = serializers.CharField(max_length=6)
-
-    def validate(self, data):
-        try:
-            obj = EmailCode.objects.get(email=data['email'], code=data['code'])
-        except EmailCode.DoesNotExist:
-            raise serializers.ValidationError("Kod noto‘g‘ri")
-
-        if obj.is_expired():
-            raise serializers.ValidationError("Kod eskirgan")
-
-        return data
-
-
-class UserSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = User
-        fields = '__all__'

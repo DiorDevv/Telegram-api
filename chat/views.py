@@ -1,10 +1,9 @@
-# chat/views.py
-
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from rest_framework.authtoken.models import Token
-from .models import User, EmailCode
-from .serializers import SignupSerializer, LoginSerializer, UserSerializer
+from rest_framework import status
+from rest_framework_simplejwt.tokens import RefreshToken
+from .serializers import SignupSerializer, VerifyLoginSerializer, UserSerializer
+from .models import EmailCode, User
 from drf_yasg.utils import swagger_auto_schema
 
 class SignupView(APIView):
@@ -13,30 +12,34 @@ class SignupView(APIView):
         serializer = SignupSerializer(data=request.data)
         if serializer.is_valid():
             serializer.save()
-            return Response({"message": "Foydalanuvchi yaratildi, emailga kod yuborildi"}, status=201)
+            return Response({"message": "Kod emailga yuborildi"}, status=201)
         return Response(serializer.errors, status=400)
 
-class LoginView(APIView):
-    @swagger_auto_schema(request_body=LoginSerializer)
+class VerifyLoginView(APIView):
+    @swagger_auto_schema(request_body=VerifyLoginSerializer)
     def post(self, request):
-        serializer = LoginSerializer(data=request.data)
+        serializer = VerifyLoginSerializer(data=request.data)
         if serializer.is_valid():
-            user = User.objects.get(email=serializer.validated_data['email'])
+            email = serializer.validated_data['email']
+            code = serializer.validated_data['code']
+
+            try:
+                email_code = EmailCode.objects.get(email=email, code=code)
+                if email_code.is_expired():
+                    return Response({"error": "Kod eskirgan"}, status=400)
+            except EmailCode.DoesNotExist:
+                return Response({"error": "Noto‘g‘ri kod"}, status=400)
+
+            user = User.objects.get(email=email)
             user.is_active = True
             user.save()
+            EmailCode.objects.filter(email=email).delete()
 
-            EmailCode.objects.filter(email=user.email).delete()
-
-            token, _ = Token.objects.get_or_create(user=user)
+            refresh = RefreshToken.for_user(user)
             return Response({
-                "message": "Kirish muvaffaqiyatli",
-                "token": token.key
+                "message": "Muvaffaqiyatli login",
+                "user": UserSerializer(user).data,
+                "access": str(refresh.access_token),
+                "refresh": str(refresh)
             })
         return Response(serializer.errors, status=400)
-
-
-class ListUsersView(APIView):
-    def get(self, request):
-        users = User.objects.all()
-        serializer = UserSerializer(users, many=True)
-        return Response(serializer.data)
