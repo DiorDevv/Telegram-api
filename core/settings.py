@@ -63,6 +63,7 @@ AUTH_USER_MODEL = 'chat.User'
 ROOT_URLCONF = 'core.urls'
 # JWT token muddati (10 daqiqa access token, 1 kun refresh token)
 from datetime import timedelta
+
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework_simplejwt.authentication.JWTAuthentication',

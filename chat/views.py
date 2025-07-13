@@ -43,3 +43,11 @@ class VerifyLoginView(APIView):
                 "refresh": str(refresh)
             })
         return Response(serializer.errors, status=400)
+
+
+class UserListView(APIView):
+    def get(self, request):
+        users = User.objects.all()
+        serializer = UserSerializer(users, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
