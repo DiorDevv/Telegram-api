@@ -61,4 +61,6 @@ class MaqolaViewSet(ModelViewSet):
     serializer_class = MaqolaSerializer
     parser_classes = [MultiPartParser, FormParser]
 
+    def perform_create(self, serializer):
+        serializer.save(author=self.request.user)
 

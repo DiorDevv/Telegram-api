@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import User, EmailCode, Maqola
+from .models import User, EmailCode, Maqola, Category
 from django.core.mail import send_mail
 import random
 
@@ -39,8 +39,28 @@ class VerifyLoginSerializer(serializers.Serializer):
     code = serializers.CharField(max_length=6)
 
 
+class CategorySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Category
+        fields = '__all__'
+
 
 class MaqolaSerializer(serializers.ModelSerializer):
+    author = UserSerializer(read_only=True)
+    author_id = serializers.PrimaryKeyRelatedField(
+        queryset=User.objects.all(),
+        source='author',
+        write_only=True,
+        required=False
+    )
+    category = CategorySerializer(read_only=True)
+    category_id = serializers.PrimaryKeyRelatedField(
+        queryset=Category.objects.all(),
+        source='category',
+        write_only=True,
+        required=False
+    )
+
     class Meta:
         model = Maqola
         fields = '__all__'
