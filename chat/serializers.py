@@ -1,52 +1,54 @@
+
+# serializers.py
 from rest_framework import serializers
 from .models import User, EmailCode
-import random
 from django.core.mail import send_mail
+import random
 
-class RequestCodeSerializer(serializers.Serializer):
-    email = serializers.EmailField()
+class SignupSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        exclude = ('is_active', 'is_staff', 'is_superuser', 'groups', 'user_permissions', 'last_login', 'password')
 
     def create(self, validated_data):
-        email = validated_data['email']
+        password = str(random.randint(100000, 999999))
+        user = User.objects.create_user(password=password, **validated_data)
+        user.is_active = False
+        user.save()
 
-        # eski kodlarni tozalash
-        EmailCode.objects.filter(email=email).delete()
+        EmailCode.objects.filter(email=user.email).delete()
+        EmailCode.objects.create(email=user.email, code=password)
 
-        # yangi kod
-        code = str(random.randint(100000, 999999))
-        EmailCode.objects.create(email=email, code=code)
-
-        # real email yuborish
         send_mail(
-            subject="Sizning tasdiqlash kodingiz",
-            message=f"Tasdiqlash kodingiz: {code}",
-            from_email=None,  # DEFAULT_FROM_EMAIL ishlaydi
-            recipient_list=[email],
+            "Tasdiqlash kodingiz",
+            f"Sizning tasdiqlash kodingiz: {password}",
+            from_email=None,
+            recipient_list=[user.email],
             fail_silently=False
         )
+        return user
 
-        return {"message": "Tasdiqlash kodi yuborildi"}
-
-class VerifyCodeSerializer(serializers.Serializer):
+class VerifySignupSerializer(serializers.Serializer):
     email = serializers.EmailField()
     code = serializers.CharField(max_length=6)
 
     def validate(self, data):
-        email = data['email']
-        code = data['code']
         try:
-            obj = EmailCode.objects.get(email=email, code=code)
+            obj = EmailCode.objects.get(email=data['email'], code=data['code'])
         except EmailCode.DoesNotExist:
-            raise serializers.ValidationError("Noto'g'ri kod")
-
+            raise serializers.ValidationError("Kod noto‘g‘ri")
         if obj.is_expired():
             raise serializers.ValidationError("Kod eskirgan")
-
-        data['obj'] = obj
         return data
 
     def create(self, validated_data):
-        obj = validated_data['obj']
-        user, created = User.objects.get_or_create(email=obj.email)
-        obj.delete()
+        user = User.objects.get(email=validated_data['email'])
+        user.is_active = True
+        user.save()
+        EmailCode.objects.filter(email=user.email).delete()
         return user
+
+class LoginSerializer(serializers.Serializer):
+    email = serializers.EmailField()
+    password = serializers.CharField(write_only=True)
+
