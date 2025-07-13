@@ -1,9 +1,8 @@
-# chat/serializers.py
-
 from rest_framework import serializers
 from .models import User, EmailCode
 from django.core.mail import send_mail
 import random
+
 
 class SignupSerializer(serializers.ModelSerializer):
     class Meta:
@@ -28,6 +27,7 @@ class SignupSerializer(serializers.ModelSerializer):
         )
         return user
 
+
 class LoginSerializer(serializers.Serializer):
     email = serializers.EmailField()
     code = serializers.CharField(max_length=6)
@@ -42,3 +42,9 @@ class LoginSerializer(serializers.Serializer):
             raise serializers.ValidationError("Kod eskirgan")
 
         return data
+
+
+class UserSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = '__all__'

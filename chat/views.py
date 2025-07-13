@@ -4,7 +4,7 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.authtoken.models import Token
 from .models import User, EmailCode
-from .serializers import SignupSerializer, LoginSerializer
+from .serializers import SignupSerializer, LoginSerializer, UserSerializer
 from drf_yasg.utils import swagger_auto_schema
 
 class SignupView(APIView):
@@ -33,3 +33,10 @@ class LoginView(APIView):
                 "token": token.key
             })
         return Response(serializer.errors, status=400)
+
+
+class ListUsersView(APIView):
+    def get(self, request):
+        users = User.objects.all()
+        serializer = UserSerializer(users, many=True)
+        return Response(serializer.data)
