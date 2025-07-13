@@ -1,5 +1,5 @@
+# chat/serializers.py
 
-# serializers.py
 from rest_framework import serializers
 from .models import User, EmailCode
 from django.core.mail import send_mail
@@ -11,24 +11,24 @@ class SignupSerializer(serializers.ModelSerializer):
         exclude = ('is_active', 'is_staff', 'is_superuser', 'groups', 'user_permissions', 'last_login', 'password')
 
     def create(self, validated_data):
-        password = str(random.randint(100000, 999999))
-        user = User.objects.create_user(password=password, **validated_data)
+        code = str(random.randint(100000, 999999))
+        user = User.objects.create_user(password=code, **validated_data)
         user.is_active = False
         user.save()
 
         EmailCode.objects.filter(email=user.email).delete()
-        EmailCode.objects.create(email=user.email, code=password)
+        EmailCode.objects.create(email=user.email, code=code)
 
         send_mail(
-            "Tasdiqlash kodingiz",
-            f"Sizning tasdiqlash kodingiz: {password}",
+            subject="Tasdiqlash kodingiz",
+            message=f"Sizning kirish kodingiz: {code}",
             from_email=None,
             recipient_list=[user.email],
-            fail_silently=False
+            fail_silently=False,
         )
         return user
 
-class VerifySignupSerializer(serializers.Serializer):
+class LoginSerializer(serializers.Serializer):
     email = serializers.EmailField()
     code = serializers.CharField(max_length=6)
 
@@ -37,18 +37,8 @@ class VerifySignupSerializer(serializers.Serializer):
             obj = EmailCode.objects.get(email=data['email'], code=data['code'])
         except EmailCode.DoesNotExist:
             raise serializers.ValidationError("Kod noto‘g‘ri")
+
         if obj.is_expired():
             raise serializers.ValidationError("Kod eskirgan")
+
         return data
-
-    def create(self, validated_data):
-        user = User.objects.get(email=validated_data['email'])
-        user.is_active = True
-        user.save()
-        EmailCode.objects.filter(email=user.email).delete()
-        return user
-
-class LoginSerializer(serializers.Serializer):
-    email = serializers.EmailField()
-    password = serializers.CharField(write_only=True)
-
