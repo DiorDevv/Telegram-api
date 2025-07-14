@@ -1,3 +1,4 @@
+from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
@@ -49,6 +50,8 @@ class VerifyLoginView(APIView):
         return Response(serializer.errors, status=400)
 
 
+
+
 class UserListView(APIView):
     def get(self, request):
         users = User.objects.all()
@@ -60,6 +63,7 @@ class MaqolaViewSet(ModelViewSet):
     queryset = Maqola.objects.all()
     serializer_class = MaqolaSerializer
     parser_classes = [MultiPartParser, FormParser]
+    permission_classes = [AllowAny]
 
     def perform_create(self, serializer):
         serializer.save()
