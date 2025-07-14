@@ -17,6 +17,7 @@ SECRET_KEY = os.getenv("SECRET_KEY")
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
+CORS_ALLOW_ALL_ORIGINS = True
 
 ALLOWED_HOSTS = []
 
@@ -33,6 +34,7 @@ INSTALLED_APPS = [
     'rest_framework',
     'chat',
     'drf_yasg',
+    "corsheaders",
 ]
 
 # REST_FRAMEWORK = {
@@ -50,6 +52,7 @@ EMAIL_HOST_PASSWORD = 'rcbzziwigfiocfvx'  # GMail App password
 DEFAULT_FROM_EMAIL = 'no-reply@yourdomain.com'
 
 MIDDLEWARE = [
+    "corsheaders.middleware.CorsMiddleware",
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
