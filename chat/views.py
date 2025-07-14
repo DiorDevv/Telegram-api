@@ -67,7 +67,7 @@ class MaqolaViewSet(ModelViewSet):
     permission_classes = [AllowAny]
 
     def perform_create(self, serializer):
-        serializer.save(author=self.request.user)
+        serializer.save()
 
 class MaqolaFileDownloadView(APIView):
     def get(self, request, pk):

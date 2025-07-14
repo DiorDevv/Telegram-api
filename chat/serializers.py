@@ -7,7 +7,9 @@ import random
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        exclude = ('password', 'groups', 'user_permissions')
+        # exclude = ('password', 'groups', 'user_permissions')
+        fields = ('id', 'first_name', 'last_name')  # faqat keraklilar
+
 
 
 class SignupSerializer(serializers.ModelSerializer):
