@@ -50,6 +50,7 @@ class VerifyLoginView(APIView):
         return Response(serializer.errors, status=400)
 
 
+
 class UserListView(APIView):
     def get(self, request):
         users = User.objects.all()
