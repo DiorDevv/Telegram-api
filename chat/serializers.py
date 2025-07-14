@@ -8,9 +8,7 @@ class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         # exclude = ('password', 'groups', 'user_permissions')
-        fields = ('id', 'first_name', 'last_name')  # faqat keraklilar
-
-
+        fields = ('id', 'first_name', 'last_name')
 
 class SignupSerializer(serializers.ModelSerializer):
     class Meta:
@@ -19,13 +17,16 @@ class SignupSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         code = str(random.randint(100000, 999999))
+
+        # Foydalanuvchini yaratish — kod parol sifatida
         user = User.objects.create_user(password=code, **validated_data)
         user.is_active = False
         user.save()
 
-        EmailCode.objects.filter(email=user.email).delete()
-        EmailCode.objects.create(email=user.email, code=code)
+        # Kodni EmailCode modelida saqlash (o‘chirilmaydi)
+        EmailCode.objects.update_or_create(email=user.email, defaults={'code': code})
 
+        # Emailga yuborish
         send_mail(
             "Tasdiqlash kodingiz",
             f"Sizning tasdiqlash kodingiz: {code}",

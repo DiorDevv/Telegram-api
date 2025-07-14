@@ -30,16 +30,27 @@ class VerifyLoginView(APIView):
             code = serializer.validated_data['code']
 
             try:
+                # EmailCode dan tekshir
                 email_code = EmailCode.objects.get(email=email, code=code)
                 if email_code.is_expired():
                     return Response({"error": "Kod eskirgan"}, status=400)
             except EmailCode.DoesNotExist:
-                return Response({"error": "Noto‘g‘ri kod"}, status=400)
+                return Response({"error": "Kod noto‘g‘ri"}, status=400)
 
-            user = User.objects.get(email=email)
+            try:
+                user = User.objects.get(email=email)
+            except User.DoesNotExist:
+                return Response({"error": "Foydalanuvchi topilmadi"}, status=404)
+
+            # Kodni parol sifatida tekshir
+            if not user.check_password(code):
+                return Response({"error": "Kod noto‘g‘ri (parol sifatida)"}, status=400)
+
+            # Aktivlashtirish
             user.is_active = True
             user.save()
-            EmailCode.objects.filter(email=email).delete()
+
+            # EmailCode'ni o‘chirmaymiz — keyinchalik ham ishlaydi
 
             refresh = RefreshToken.for_user(user)
             return Response({
@@ -49,7 +60,6 @@ class VerifyLoginView(APIView):
                 "refresh": str(refresh)
             })
         return Response(serializer.errors, status=400)
-
 
 
 
