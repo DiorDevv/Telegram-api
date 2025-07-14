@@ -1,3 +1,4 @@
+from django.http import FileResponse, Http404
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.views import APIView
 from rest_framework.response import Response
@@ -68,3 +69,14 @@ class MaqolaViewSet(ModelViewSet):
     def perform_create(self, serializer):
         serializer.save(author=self.request.user)
 
+class MaqolaFileDownloadView(APIView):
+    def get(self, request, pk):
+        try:
+            maqola = Maqola.objects.get(pk=pk)
+            if maqola.file:
+                response = FileResponse(maqola.file.open(), as_attachment=True)
+                return response
+            else:
+                return Response({"detail": "Maqolada fayl yo‘q"}, status=status.HTTP_404_NOT_FOUND)
+        except Maqola.DoesNotExist:
+            raise Http404("Maqola topilmadi")
