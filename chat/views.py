@@ -63,7 +63,7 @@ class MaqolaViewSet(ModelViewSet):
     queryset = Maqola.objects.all()
     serializer_class = MaqolaSerializer
     parser_classes = [MultiPartParser, FormParser]
-    permission_classes = [IsAuthenticated]
+    permission_classes = [AllowAny]
 
     def perform_create(self, serializer):
         serializer.save(author=self.request.user)
