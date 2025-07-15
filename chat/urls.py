@@ -9,7 +9,7 @@ urlpatterns = [
     path('signup/', SignupView.as_view()),
     path('verify-login/', VerifyLoginView.as_view()),
     path('users/', UserListView.as_view()),
-    path('api/maqolalar/<int:pk>/download/', MaqolaFileDownloadView.as_view(), name='maqola-download'),
+    path('maqolalar/<int:pk>/download/', MaqolaFileDownloadView.as_view(), name='maqola-download'),
 
     path('', include(router.urls)),  # bu yerda maxsulotlar uchun CRUD endpointlar avtomatik yaratiladi
 ]

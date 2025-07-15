@@ -7,8 +7,9 @@ import random
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        # exclude = ('password', 'groups', 'user_permissions')
-        fields = ('id', 'first_name', 'last_name')
+        exclude = ('password', 'groups', 'user_permissions')
+        # fields = ('id', 'first_name', 'last_name')
+
 
 class SignupSerializer(serializers.ModelSerializer):
     class Meta:
@@ -35,6 +36,12 @@ class SignupSerializer(serializers.ModelSerializer):
             fail_silently=False
         )
         return user
+
+
+class UserlistSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ('id', 'first_name', 'last_name')
 
 
 class VerifyLoginSerializer(serializers.Serializer):

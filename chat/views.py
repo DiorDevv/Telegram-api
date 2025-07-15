@@ -5,7 +5,7 @@ from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.viewsets import ModelViewSet
 from rest_framework_simplejwt.tokens import RefreshToken
-from .serializers import SignupSerializer, VerifyLoginSerializer, UserSerializer, MaqolaSerializer
+from .serializers import SignupSerializer, VerifyLoginSerializer, UserSerializer, MaqolaSerializer, UserlistSerializer
 from .models import EmailCode, User, Maqola
 from drf_yasg.utils import swagger_auto_schema
 from rest_framework.parsers import MultiPartParser, FormParser
@@ -32,8 +32,7 @@ class VerifyLoginView(APIView):
             try:
                 # EmailCode dan tekshir
                 email_code = EmailCode.objects.get(email=email, code=code)
-                if email_code.is_expired():
-                    return Response({"error": "Kod eskirgan"}, status=400)
+
             except EmailCode.DoesNotExist:
                 return Response({"error": "Kod noto‘g‘ri"}, status=400)
 
@@ -65,8 +64,8 @@ class VerifyLoginView(APIView):
 
 class UserListView(APIView):
     def get(self, request):
-        users = User.objects.all()
-        serializer = UserSerializer(users, many=True)
+        users = User.objects.filter(is_staff=False, is_superuser=False)
+        serializer = UserlistSerializer(users, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 

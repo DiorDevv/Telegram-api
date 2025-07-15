@@ -49,9 +49,6 @@ class EmailCode(models.Model):
     code = models.CharField(max_length=6)
     created_at = models.DateTimeField(auto_now_add=True)
 
-    def is_expired(self):
-        return timezone.now() > self.created_at + timezone.timedelta(minutes=10)
-
 
 class Category(models.Model):
     name = models.CharField(max_length=100, unique=True)
